@@ -19,13 +19,14 @@
 """
 RSA keys.
 """
+from pqcrypto.sign import ml_dsa_44 as mldsa44
 
 from typing import Optional
 
-from cryptography.exceptions import InvalidSignature, UnsupportedAlgorithm
+from cryptography.exceptions import UnsupportedAlgorithm
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 from paramiko.message import Message
 from paramiko.pkey import PKey
@@ -134,13 +135,7 @@ class RSAKey(PKey):
     def sign_ssh_data(self, data, algorithm=None):
         if algorithm is None:
             algorithm = self.name
-        sig = self.key.sign(
-            data,
-            padding=padding.PKCS1v15(),
-            # HASHES being just a map from long identifier to algo; cert'ness
-            # is not truly relevant.
-            algorithm=self.HASHES[algorithm](),
-        )
+        sig = mldsa44.sign(self.key, data)
         m = Message()
         # And here again, cert'ness is irrelevant, so it is stripped out.
         m.add_string(algorithm.replace("-cert-v01@openssh.com", ""))
@@ -158,15 +153,13 @@ class RSAKey(PKey):
         # NOTE: pad received signature with leading zeros, key.verify()
         # expects a signature of key size (e.g. PuTTY doesn't pad)
         sign = msg.get_binary()
-        diff = key.key_size - len(sign) * 8
+        diff = 2560 - len(sign) * 8
         if diff > 0:
             sign = b"\x00" * ((diff + 7) // 8) + sign
 
         try:
-            key.verify(
-                sign, data, padding.PKCS1v15(), self.HASHES[sig_algorithm]()
-            )
-        except InvalidSignature:
+            mldsa44.verify(key, data, sign)
+        except ValueError:
             return False
         else:
             return True
@@ -181,9 +174,7 @@ class RSAKey(PKey):
         :param progress_func: Unused
         :return: new `.RSAKey` private key
         """
-        key = rsa.generate_private_key(
-            public_exponent=65537, key_size=bits, backend=default_backend()
-        )
+        key, key = mldsa44.keypair()
         return RSAKey(key=key)
 
     # ...internals...
