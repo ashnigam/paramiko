@@ -2,6 +2,8 @@
 Ephemeral Elliptic Curve Diffie-Hellman (ECDH) key exchange
 RFC 5656, Section 4
 """
+from pqcrypto.kem import ml_kem_768 as mlkem768
+from pqcrypto.sign import ml_dsa_44 as mldsa44
 
 from hashlib import sha256, sha384, sha512
 from paramiko.common import byte_chr
@@ -56,7 +58,7 @@ class KexNistp256:
         )
 
     def _generate_key_pair(self):
-        self.P = ec.generate_private_key(self.curve, default_backend())
+        self.P = mldsa44.keypair()
         if self.transport.server_mode:
             self.Q_S = self.P.public_key()
             return
@@ -68,7 +70,8 @@ class KexNistp256:
             self.curve, Q_C_bytes
         )
         K_S = self.transport.get_server_key().asbytes()
-        K = self.P.exchange(ec.ECDH(), self.Q_C)
+        # PQC-CAVEAT: encaps emits sender-side only. Receiver must use mlkem768.decaps(ciphertext, sk). See docs/pqc/dh-to-kem.md
+        K = mlkem768.encaps(self.Q_C)
         K = int(hexlify(K), 16)
         # compute exchange hash
         hm = Message()
@@ -114,7 +117,8 @@ class KexNistp256:
             self.curve, Q_S_bytes
         )
         sig = m.get_binary()
-        K = self.P.exchange(ec.ECDH(), self.Q_S)
+        # PQC-CAVEAT: encaps emits sender-side only. Receiver must use mlkem768.decaps(ciphertext, sk). See docs/pqc/dh-to-kem.md
+        K = mlkem768.encaps(self.Q_S)
         K = int(hexlify(K), 16)
         # compute exchange hash and verify signature
         hm = Message()
