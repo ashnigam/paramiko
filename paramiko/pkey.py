@@ -19,6 +19,7 @@
 """
 Common API for all public keys.
 """
+from pqcrypto.sign import ml_dsa_65
 
 import base64
 import os
