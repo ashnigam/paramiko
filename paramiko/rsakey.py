@@ -19,6 +19,7 @@
 """
 RSA keys.
 """
+from pqcrypto.sign import ml_dsa_65
 
 from typing import Optional
 
