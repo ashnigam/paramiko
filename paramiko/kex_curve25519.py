@@ -1,3 +1,4 @@
+from pqcrypto.sign import ml_dsa_65
 import binascii
 import hashlib
 
