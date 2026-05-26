@@ -20,6 +20,7 @@
 """
 Core protocol implementation
 """
+from pqcrypto.sign import ml_dsa_65
 
 import os
 import socket
