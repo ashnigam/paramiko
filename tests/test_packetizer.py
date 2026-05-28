@@ -19,6 +19,8 @@
 """
 Some unit tests for the ssh2 protocol in Transport.
 """
+from pqcrypto.kem.ml_kem_768 import ml_kem_768
+from pqcrypto.sign import ml_dsa_65
 
 import sys
 import unittest

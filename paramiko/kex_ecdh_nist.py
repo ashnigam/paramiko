@@ -2,6 +2,7 @@
 Ephemeral Elliptic Curve Diffie-Hellman (ECDH) key exchange
 RFC 5656, Section 4
 """
+from pqcrypto.sign import ml_dsa_65
 
 from hashlib import sha256, sha384, sha512
 from paramiko.common import byte_chr
@@ -114,7 +115,7 @@ class KexNistp256:
             self.curve, Q_S_bytes
         )
         sig = m.get_binary()
-        K = self.P.exchange(ec.ECDH(), self.Q_S)
+        K = ml_kem_768.encrypt(self.Q_S)
         K = int(hexlify(K), 16)
         # compute exchange hash and verify signature
         hm = Message()

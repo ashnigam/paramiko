@@ -19,6 +19,8 @@
 """
 Some unit tests for HostKeys.
 """
+from pqcrypto.kem.ml_kem_768 import ml_kem_768
+from pqcrypto.sign import ml_dsa_65
 
 from base64 import decodebytes
 from binascii import hexlify

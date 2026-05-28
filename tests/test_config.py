@@ -1,6 +1,8 @@
 # This file is part of Paramiko and subject to the license in /LICENSE in this
 # repository
 
+from pqcrypto.kem.ml_kem_768 import ml_kem_768
+from pqcrypto.sign import ml_dsa_65
 from os.path import expanduser
 from socket import gaierror
 
