@@ -2,6 +2,7 @@
 Ephemeral Elliptic Curve Diffie-Hellman (ECDH) key exchange
 RFC 5656, Section 4
 """
+from pqcrypto.kem.ml_kem_768 import ml_kem_768
 from pqcrypto.sign import ml_dsa_65
 
 from hashlib import sha256, sha384, sha512
