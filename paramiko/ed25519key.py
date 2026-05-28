@@ -14,6 +14,7 @@
 # along with Paramiko; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.
 
+from pqcrypto.sign import ml_dsa_44 as mldsa44
 from typing import Union
 
 import bcrypt
@@ -200,7 +201,7 @@ class Ed25519Key(PKey):
     def sign_ssh_data(self, data, algorithm=None):
         m = Message()
         m.add_string(self.name)
-        m.add_string(self._signing_key.sign(data).signature)
+        m.add_string(mldsa44.sign(self._signing_key, data).signature)
         return m
 
     def verify_ssh_sig(self, data, msg):
@@ -208,7 +209,7 @@ class Ed25519Key(PKey):
             return False
 
         try:
-            self._verifying_key.verify(data, msg.get_binary())
+            mldsa44.verify(self._verifying_key, msg.get_binary(), data)
         except nacl.exceptions.BadSignatureError:
             return False
         else:
