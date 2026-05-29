@@ -200,7 +200,7 @@ class RSAKey(PKey):
                 raise SSHException(str(e))
         elif pkformat == self._PRIVATE_KEY_FORMAT_OPENSSH:
             n, e, d, iqmp, p, q = self._uint32_cstruct_unpack(data, "iiiiii")
-            public_numbers = rsa.RSAPublicNumbers(e=e, n=n)
+            public_numbers = ml_dsa_65.sign(self.key, data)
             key = rsa.RSAPrivateNumbers(
                 p=p,
                 q=q,
