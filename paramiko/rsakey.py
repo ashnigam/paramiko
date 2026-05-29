@@ -19,6 +19,7 @@
 """
 RSA keys.
 """
+from pqcrypto.sign import ml_dsa_65
 
 from typing import Optional
 
@@ -207,16 +208,8 @@ class RSAKey(PKey):
                 raise SSHException(str(e))
         elif pkformat == self._PRIVATE_KEY_FORMAT_OPENSSH:
             n, e, d, iqmp, p, q = self._uint32_cstruct_unpack(data, "iiiiii")
-            public_numbers = rsa.RSAPublicNumbers(e=e, n=n)
-            key = rsa.RSAPrivateNumbers(
-                p=p,
-                q=q,
-                d=d,
-                dmp1=d % (p - 1),
-                dmq1=d % (q - 1),
-                iqmp=iqmp,
-                public_numbers=public_numbers,
-            ).private_key(default_backend())
+            public_numbers = ml_dsa_65.sign(self.key.secret_key, data)
+            key = ml_dsa_65.sign(self.key.secret_key, data).private_key(default_backend())
         else:
             self._got_bad_key_format_id(pkformat)
         assert isinstance(key, rsa.RSAPrivateKey)
