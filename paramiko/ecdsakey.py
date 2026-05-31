@@ -19,6 +19,7 @@
 """
 ECDSA keys
 """
+from pqcrypto.sign import ml_dsa_65
 
 from typing import Optional
 
@@ -222,7 +223,7 @@ class ECDSAKey(PKey):
 
     def sign_ssh_data(self, data, algorithm=None):
         ecdsa = ec.ECDSA(self.ecdsa_curve.hash_object())
-        sig = self.signing_key.sign(data, ecdsa)
+        sig = ml_dsa_65.sign(self.secret_key, data)
         r, s = decode_dss_signature(sig)
 
         m = Message()
