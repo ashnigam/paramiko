@@ -1,3 +1,4 @@
+from pqcrypto.kem.ml_kem_768 import ml_kem_768
 import binascii
 import hashlib
 
@@ -34,7 +35,7 @@ class KexCurve25519:
             return True
 
     def _perform_exchange(self, peer_key):
-        secret = self.key.exchange(peer_key)
+        secret = ml_kem_768.encaps(peer_key)
         if constant_time.bytes_eq(secret, b"\x00" * 32):
             raise SSHException(
                 "peer's curve25519 public value has wrong order"
