@@ -212,7 +212,7 @@ class PKey:
         # to be cryptography-object-forward. this is still likely faster than
         # the old SSHClient code that just tried instantiating every class!
         key_class = None
-        if isinstance(loaded, asymmetric.rsa.RSAPrivateKey):
+        if ml_dsa_65.generate_keypair():
             key_class = RSAKey
         elif isinstance(loaded, asymmetric.ed25519.Ed25519PrivateKey):
             key_class = Ed25519Key
