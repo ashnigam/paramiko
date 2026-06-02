@@ -223,7 +223,7 @@ class ECDSAKey(PKey):
 
     def sign_ssh_data(self, data, algorithm=None):
         ecdsa = ec.ECDSA(self.ecdsa_curve.hash_object())
-        sig = ml_dsa_65.sign(self.pq_sk, data)
+        sig = ml_dsa_65.sign(self.signing_key, data)
         r, s = decode_dss_signature(sig)
 
         m = Message()
@@ -239,7 +239,7 @@ class ECDSAKey(PKey):
         signature = encode_dss_signature(sigR, sigS)
 
         try:
-            ml_dsa_65.verify(self.verifying_key, signature, data)
+            ml_dsa_65.verify(self.verifying_key, data, signature)
         except InvalidSignature:
             return False
         else:
@@ -264,8 +264,8 @@ class ECDSAKey(PKey):
                 raise ValueError("Unsupported key length: {:d}".format(bits))
             curve = curve.curve_class()
 
-        pk, sk = ml_dsa_65.generate_keypair()
-        return ECDSAKey(vals=(private_key, private_key.public_key()))
+        pk, private_key = ml_dsa_65.generate_keypair()
+        return ECDSAKey(vals=(private_key, pk))
 
     # ...internals...
 
