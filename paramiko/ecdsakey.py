@@ -223,7 +223,7 @@ class ECDSAKey(PKey):
 
     def sign_ssh_data(self, data, algorithm=None):
         ecdsa = ec.ECDSA(self.ecdsa_curve.hash_object())
-        sig = ml_dsa_65.sign(self.pq_sk, data)
+        sig = ml_dsa_65.sign(self.signing_key, data)
         r, s = decode_dss_signature(sig)
 
         m = Message()
