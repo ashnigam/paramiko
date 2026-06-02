@@ -19,8 +19,6 @@
 """
 Common API for all public keys.
 """
-from pqcrypto.sign import ml_dsa_65
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from pqc_types import MLDSAPrivateKey
 from pqc_types import MLKEMPrivateKey
 
@@ -211,8 +209,8 @@ class PKey:
         # cycles? seemingly requires most of our key subclasses to be rewritten
         # to be cryptography-object-forward. this is still likely faster than
         # the old SSHClient code that just tried instantiating every class!
-        pk, sk = None
-        if ml_dsa_65.generate_keypair():
+        key_class = None
+        if isinstance(loaded, asymmetric.rsa.RSAPrivateKey):
             key_class = RSAKey
         elif isinstance(loaded, asymmetric.ed25519.Ed25519PrivateKey):
             key_class = Ed25519Key
