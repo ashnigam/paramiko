@@ -135,7 +135,7 @@ class RSAKey(PKey):
     def sign_ssh_data(self, data, algorithm=None):
         if algorithm is None:
             algorithm = self.name
-        sig = ml_dsa_65.sign(self.key.secret_key, data)
+        sig = ml_dsa_65.sign(self.key, data)
         m = Message()
         # And here again, cert'ness is irrelevant, so it is stripped out.
         m.add_string(algorithm.replace("-cert-v01@openssh.com", ""))
@@ -158,7 +158,7 @@ class RSAKey(PKey):
             sign = b"\x00" * ((diff + 7) // 8) + sign
 
         try:
-            ml_dsa_65.verify(key.public_key, data, sign)
+            ml_dsa_65.verify(self.key.public_key(), data, sign)
         except InvalidSignature:
             return False
         else:
@@ -174,7 +174,7 @@ class RSAKey(PKey):
         :param progress_func: Unused
         :return: new `.RSAKey` private key
         """
-        pk, sk = ml_dsa_65.generate_keypair()
+        pk, key = ml_dsa_65.generate_keypair()
         return RSAKey(key=key)
 
     # ...internals...
