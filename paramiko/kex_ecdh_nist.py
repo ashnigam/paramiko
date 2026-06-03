@@ -2,7 +2,7 @@
 Ephemeral Elliptic Curve Diffie-Hellman (ECDH) key exchange
 RFC 5656, Section 4
 """
-from pqcrypto.sign import ml_dsa_65
+from pqcrypto.kem import ml_kem_768
 
 from hashlib import sha256, sha384, sha512
 from paramiko.common import byte_chr
@@ -57,7 +57,7 @@ class KexNistp256:
         )
 
     def _generate_key_pair(self):
-        pk, P = ec.generate_private_key(self.curve, default_backend())
+        pk, P = ml_kem_768.generate_keypair()
         if self.transport.server_mode:
             self.Q_S = self.P.public_key()
             return
@@ -91,7 +91,9 @@ class KexNistp256:
         hm.add_mpint(int(K))
         H = self.hash_algo(hm.asbytes()).digest()
         self.transport._set_K_H(K, H)
-        sig = ml_dsa_65.sign(self.transport.get_server_key(), H)
+        sig = self.transport.get_server_key().sign_ssh_data(
+            H, self.transport.host_key_type
+        )
         # construct reply
         m = Message()
         m.add_byte(c_MSG_KEXECDH_REPLY)
