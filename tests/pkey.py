@@ -1,3 +1,4 @@
+from pqcrypto.sign import ml_dsa_65
 from io import StringIO
 from pathlib import Path
 from unittest.mock import call, patch
@@ -272,7 +273,7 @@ class PKey_:
         ) -> None:
             # Roundtrip-as-proof
             temp_key = tmp_path / "my.key"
-            key = key_class.generate(**key_kwargs)
+            pk, sk = ml_dsa_65.generate_keypair()
             key.write_private_key_file(
                 filename=str(temp_key), file_format=key_format
             )
