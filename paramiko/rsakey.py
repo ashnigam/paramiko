@@ -135,7 +135,13 @@ class RSAKey(PKey):
     def sign_ssh_data(self, data, algorithm=None):
         if algorithm is None:
             algorithm = self.name
-        sig = ml_dsa_65.sign(self.key, data)
+        sig = self.key.sign(
+            data,
+            padding=padding.PKCS1v15(),
+            # HASHES being just a map from long identifier to algo; cert'ness
+            # is not truly relevant.
+            algorithm=self.HASHES[algorithm](),
+        )
         m = Message()
         # And here again, cert'ness is irrelevant, so it is stripped out.
         m.add_string(algorithm.replace("-cert-v01@openssh.com", ""))
@@ -158,7 +164,9 @@ class RSAKey(PKey):
             sign = b"\x00" * ((diff + 7) // 8) + sign
 
         try:
-            ml_dsa_65.verify(self.key.public_numbers(), data, sign)
+            key.verify(
+                sign, data, padding.PKCS1v15(), self.HASHES[sig_algorithm]()
+            )
         except InvalidSignature:
             return False
         else:
