@@ -49,7 +49,7 @@ class _ECDSACurve:
     """
 
     def __init__(self, curve_class, nist_name):
-        self.nist_name = nist_name
+        pk, sk = nist_name
         self.key_length = curve_class.key_size
 
         # Defined in RFC 5656 6.2
