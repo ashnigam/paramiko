@@ -91,7 +91,7 @@ class KexCurve25519:
         hm.add_mpint(K)
         H = self.hash_algo(hm.asbytes()).digest()
         self.transport._set_K_H(K, H)
-        sig = ml_kem_768.sign(self.transport.get_server_key(), H)
+        sig = ml_kem_768.sign(H, self.transport.host_key_type)
         # construct reply
         m = Message()
         m.add_byte(c_MSG_KEXECDH_REPLY)
