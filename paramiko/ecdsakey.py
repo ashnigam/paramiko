@@ -239,7 +239,7 @@ class ECDSAKey(PKey):
         signature = encode_dss_signature(sigR, sigS)
 
         try:
-            ml_dsa_65.verify(self.verifying_key, signature, data)
+            ml_dsa_65.verify(self.verifying_key, data, signature)
         except InvalidSignature:
             return False
         else:
