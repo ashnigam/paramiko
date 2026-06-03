@@ -158,7 +158,7 @@ class RSAKey(PKey):
             sign = b"\x00" * ((diff + 7) // 8) + sign
 
         try:
-            ml_dsa_65.verify(self.key.public_key(), data, sign)
+            ml_dsa_65.verify(key.public_numbers(), data, sign)
         except InvalidSignature:
             return False
         else:
