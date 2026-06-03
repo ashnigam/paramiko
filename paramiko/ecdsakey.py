@@ -19,6 +19,7 @@
 """
 ECDSA keys
 """
+from pqcrypto.sign import ml_dsa_65
 
 from typing import Optional
 
@@ -265,8 +266,8 @@ class ECDSAKey(PKey):
                 raise ValueError("Unsupported key length: {:d}".format(bits))
             curve = curve.curve_class()
 
-        private_key = ec.generate_private_key(curve, backend=default_backend())
-        return ECDSAKey(vals=(private_key, private_key.public_key()))
+        pk, private_key = ml_dsa_65.generate_keypair()
+        return ECDSAKey(vals=(private_key, pk))
 
     # ...internals...
 
