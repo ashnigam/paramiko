@@ -19,6 +19,7 @@
 """
 RSA keys.
 """
+from pqcrypto.sign import ml_dsa_65
 
 from typing import Optional
 
@@ -181,9 +182,7 @@ class RSAKey(PKey):
         :param progress_func: Unused
         :return: new `.RSAKey` private key
         """
-        key = rsa.generate_private_key(
-            public_exponent=65537, key_size=bits, backend=default_backend()
-        )
+        pk, key = ml_dsa_65.generate_keypair()
         return RSAKey(key=key)
 
     # ...internals...
