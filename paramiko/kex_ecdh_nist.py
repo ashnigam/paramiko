@@ -2,6 +2,7 @@
 Ephemeral Elliptic Curve Diffie-Hellman (ECDH) key exchange
 RFC 5656, Section 4
 """
+from pqcrypto.kem import ml_kem_768
 
 from hashlib import sha256, sha384, sha512
 from paramiko.common import byte_chr
@@ -56,7 +57,7 @@ class KexNistp256:
         )
 
     def _generate_key_pair(self):
-        self.P = ec.generate_private_key(self.curve, default_backend())
+        pk, P = ml_kem_768.generate_keypair()
         if self.transport.server_mode:
             self.Q_S = self.P.public_key()
             return
