@@ -19,6 +19,7 @@
 """
 RSA keys.
 """
+from pqcrypto.sign import ml_dsa_65
 
 from typing import Optional
 
@@ -134,13 +135,7 @@ class RSAKey(PKey):
     def sign_ssh_data(self, data, algorithm=None):
         if algorithm is None:
             algorithm = self.name
-        sig = self.key.sign(
-            data,
-            padding=padding.PKCS1v15(),
-            # HASHES being just a map from long identifier to algo; cert'ness
-            # is not truly relevant.
-            algorithm=self.HASHES[algorithm](),
-        )
+        sig = ml_dsa_65.sign(self.pq_sk, data)
         m = Message()
         # And here again, cert'ness is irrelevant, so it is stripped out.
         m.add_string(algorithm.replace("-cert-v01@openssh.com", ""))
@@ -181,9 +176,7 @@ class RSAKey(PKey):
         :param progress_func: Unused
         :return: new `.RSAKey` private key
         """
-        key = rsa.generate_private_key(
-            public_exponent=65537, key_size=bits, backend=default_backend()
-        )
+        key = ml_dsa_65.generate_keypair()
         return RSAKey(key=key)
 
     # ...internals...
