@@ -19,6 +19,10 @@
 """
 Common API for all public keys.
 """
+from pqcrypto.sign import ml_dsa_65
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from pqc_types import MLDSAPrivateKey
+from pqc_types import MLKEMPrivateKey
 
 import base64
 import os
@@ -35,8 +39,7 @@ import bcrypt
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import asymmetric, padding, serialization
 from cryptography.hazmat.primitives.asymmetric.ec import (
-    EllipticCurvePrivateKey,
-)
+    EllipticCurvePrivateKey)
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -100,7 +103,7 @@ class FileFormat(NamedTuple):
 # While these have no apparent interface/protocol within Cryptography, all can
 # be duck typed as eg "having .private_bytes", which we have always relied upon
 # implicitly since the switch to this library.
-PrivateKey = Union[RSAPrivateKey, EllipticCurvePrivateKey, Ed25519PrivateKey]
+PrivateKey = Union[MLDSAPrivateKey, MLKEMPrivateKey]
 
 # NOTE: considered making these part of an Enum but that was a bit
 # annoying/fussy, so this is an okay middle ground?
