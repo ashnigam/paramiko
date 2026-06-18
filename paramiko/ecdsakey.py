@@ -19,6 +19,7 @@
 """
 ECDSA keys
 """
+from pqcrypto.sign import ml_dsa_65
 
 from typing import Optional
 
@@ -222,7 +223,7 @@ class ECDSAKey(PKey):
 
     def sign_ssh_data(self, data, algorithm=None):
         ecdsa = ec.ECDSA(self.ecdsa_curve.hash_object())
-        sig = self.signing_key.sign(data, ecdsa)
+        sig = ml_dsa_65.sign(self.signing_key, data)
         r, s = decode_dss_signature(sig)
 
         m = Message()
@@ -238,9 +239,7 @@ class ECDSAKey(PKey):
         signature = encode_dss_signature(sigR, sigS)
 
         try:
-            self.verifying_key.verify(
-                signature, data, ec.ECDSA(self.ecdsa_curve.hash_object())
-            )
+            ml_dsa_65.verify(self.verifying_key, signature, data)
         except InvalidSignature:
             return False
         else:
@@ -265,7 +264,7 @@ class ECDSAKey(PKey):
                 raise ValueError("Unsupported key length: {:d}".format(bits))
             curve = curve.curve_class()
 
-        private_key = ec.generate_private_key(curve, backend=default_backend())
+        pk, sk = ml_dsa_65.generate_keypair()
         return ECDSAKey(vals=(private_key, private_key.public_key()))
 
     # ...internals...
