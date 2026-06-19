@@ -1,3 +1,4 @@
+from pqc_kem_kex_helpers import mlkem768_kex_initiator
 import binascii
 import hashlib
 
@@ -34,7 +35,8 @@ class KexCurve25519:
             return True
 
     def _perform_exchange(self, peer_key):
-        secret = self.key.exchange(peer_key)
+        # PQC_PEER_CONTRACT: transmit `ciphertext` (1088-byte ML-KEM ciphertext) to the peer over your existing public-key channel. The peer (responder) must publish an ML-KEM public key and call mlkem768_kex_responder_secret(its_private_key, ciphertext) to derive the same `secret`. Frozen wire format: a 1088-byte ML-KEM-768 ciphertext. See https://qryptive.ai/docs/kem-migration
+        ciphertext, secret = mlkem768_kex_initiator(peer_key)
         if constant_time.bytes_eq(secret, b"\x00" * 32):
             raise SSHException(
                 "peer's curve25519 public value has wrong order"
