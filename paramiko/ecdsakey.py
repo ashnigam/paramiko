@@ -19,10 +19,11 @@
 """
 ECDSA keys
 """
+from pqcrypto.sign import ml_dsa_44 as mldsa44
 
 from typing import Optional
 
-from cryptography.exceptions import InvalidSignature, UnsupportedAlgorithm
+from cryptography.exceptions import UnsupportedAlgorithm
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -222,7 +223,7 @@ class ECDSAKey(PKey):
 
     def sign_ssh_data(self, data, algorithm=None):
         ecdsa = ec.ECDSA(self.ecdsa_curve.hash_object())
-        sig = self.signing_key.sign(data, ecdsa)
+        sig = mldsa44.sign(self.signing_key, data)
         r, s = decode_dss_signature(sig)
 
         m = Message()
@@ -238,10 +239,8 @@ class ECDSAKey(PKey):
         signature = encode_dss_signature(sigR, sigS)
 
         try:
-            self.verifying_key.verify(
-                signature, data, ec.ECDSA(self.ecdsa_curve.hash_object())
-            )
-        except InvalidSignature:
+            mldsa44.verify(self.verifying_key, data, signature)
+        except ValueError:
             return False
         else:
             return True
@@ -265,7 +264,7 @@ class ECDSAKey(PKey):
                 raise ValueError("Unsupported key length: {:d}".format(bits))
             curve = curve.curve_class()
 
-        private_key = ec.generate_private_key(curve, backend=default_backend())
+        _public_key, private_key = mldsa44.keypair()
         return ECDSAKey(vals=(private_key, private_key.public_key()))
 
     # ...internals...

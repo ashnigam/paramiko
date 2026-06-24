@@ -1,3 +1,4 @@
+from pqcrypto.kem import ml_kem_768 as mlkem768
 import binascii
 import hashlib
 
@@ -27,13 +28,15 @@ class KexCurve25519:
     @classmethod
     def is_available(cls):
         try:
-            X25519PrivateKey.generate()
+            # PQC-CAVEAT: encaps emits sender-side only. Receiver must use mlkem768.decaps(ciphertext, sk). See docs/pqc/dh-to-kem.md
+            mlkem768.keypair()
         except UnsupportedAlgorithm:
             return False
         else:
             return True
 
     def _perform_exchange(self, peer_key):
+        # PQC_MIGRATION_REQUIRED: ML-KEM/ML-KEM .exchange() cannot auto-migrate to ML-KEM. ML-KEM is encaps/decaps — sender: mlkem768.encaps(pk) -> (ct, ss); receiver: mlkem768.decaps(sk, ct) -> ss. Split protocol manually. See: https://qryptive.ai/docs/kem-migration
         secret = self.key.exchange(peer_key)
         if constant_time.bytes_eq(secret, b"\x00" * 32):
             raise SSHException(
@@ -42,7 +45,8 @@ class KexCurve25519:
         return secret
 
     def start_kex(self):
-        self.key = X25519PrivateKey.generate()
+        # PQC-CAVEAT: encaps emits sender-side only. Receiver must use mlkem768.decaps(ciphertext, sk). See docs/pqc/dh-to-kem.md
+        self.key = mlkem768.keypair()
         if self.transport.server_mode:
             self.transport._expect_packet(_MSG_KEXECDH_INIT)
             return
